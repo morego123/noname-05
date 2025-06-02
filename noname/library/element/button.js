@@ -23,8 +23,10 @@ export class Button extends HTMLDivElement {
 			[item, type, position, noClick, button] = other._args;
 		}
 		if (typeof type == "function") {
+			console.log('5-0 调用[1]type自带函数');
 			button = type(item, type, position, noClick, button);
 		} else if (ui.create.buttonPresets[type]) {
+			console.log('5-1 调用ui.create.buttonPresets   type:',type);
 			button = ui.create.buttonPresets[type](item, type, position, noClick, button);
 		}
 		if (button) {
@@ -40,6 +42,20 @@ export class Button extends HTMLDivElement {
 			}
 			if (!button.buttonid) {
 				button.buttonid = get.id();
+			}
+			if(button.link2s){
+				console.log('5-3 新加button-附加样式：',button.link2s);
+				if(button.link2s.noselect){
+					console.log('5-3 ',button.classList,':',button.classList.contains('selectable'));
+					//if(button.classList.contains('selectable')) button.classList.remove('selectable');
+				}
+				if(button.link2s.nowidth) button.style.width='auto';
+				if(button.link2s.type2=='skill'){
+					lib.setIntro(button);	//添加右键信息框
+					button._customintro = uiintro => {
+						uiintro.add(`${get.translation(button.link+'_info')}`);
+					};
+				}
 			}
 			// @ts-expect-error ignore
 			button._args = [item, type, position, noClick, button];

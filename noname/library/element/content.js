@@ -2230,6 +2230,10 @@ player.removeVirtualEquip(card);
 					buttons.classList.add("popup");
 					buttons.classList.add("guanxing");
 					buttons._link = i;
+					console.log('观星buttons，栏行数:', i+1, list[i].length);
+					console.log('观星buttons，栏text:', list[i][0]);
+					console.log('观星buttons，栏按钮:', list[i][1]);
+					console.log('观星buttons，栏类型-个数:', get.itemtype(list[i][1]), list[i][1].length);
 					if (list[i][1]) {
 						if (get.itemtype(list[i][1]) == "cards") {
 							var cardsb = ui.create.buttons(list[i][1], "card", buttons);
@@ -6749,6 +6753,7 @@ player.removeVirtualEquip(card);
 		}
 		if (event.createDialog && !event.dialog) {
 			if (Array.isArray(event.createDialog)) {
+				console.log('2调用content.chooseButton(...)--传参list',event.createDialog);
 				event.createDialog.add("hidden");
 				event.dialog = ui.create.dialog.apply(this, event.createDialog);
 			}

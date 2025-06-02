@@ -1871,6 +1871,7 @@ export class Create {
 		return dialog;
 	}
 	dialog() {
+		console.log('3 ui.create.dialog(...)函数',arguments);
 		let dialog = new lib.element.Dialog(...arguments);
 		if (!Array.from(arguments).includes("hidden")) {
 			dialog.open();
@@ -3083,10 +3084,16 @@ export class Create {
 		 * @returns { import("../../library/index.js").Button }
 		 */
 		tdnodes: (item, type, position, noclick, node) => {
+			console.log('6-1 tdnodes---------------:',item);
+			//let link2s={noselect:false,link2:null,isBlank:false};
+
 			node = ui.create.div(".shadowed.reduce_radius.pointerdiv.tdnode.tdnodes", position);
 			if (Array.isArray(item)) {
 				node.innerHTML = "<span>" + item[1] + "</span>";
 				node.link = item[0];
+				if(item[2]){
+					node.link2s=item[2];		//附加样式
+				}
 			} else {
 				node.innerHTML = "<span>" + item + "</span>";
 				node.link = item;
@@ -3157,6 +3164,14 @@ export class Create {
 		 * @returns { import("../../library/index.js").Button }
 		 */
 		character: (item, type, position, noclick, node) => {
+			let link2s=null;
+			let old_item = item;
+			if (Array.isArray(old_item)) {
+				item = old_item[0];
+				if(old_item[2]){	//cell的附加信息
+					link2s = old_item[2];
+				}
+			}
 			if (node) {
 				node.classList.add("button");
 				node.classList.add("character");
@@ -3174,6 +3189,7 @@ export class Create {
 				}
 			}
 			node.link = item;
+			if(link2s) node.link2s=link2s;		//附加类型
 
 			var double = get.is.double(node._link, true);
 			if (double) {
@@ -3205,6 +3221,7 @@ export class Create {
 					if (lib.config.buttoncharacter_style == "simple") {
 						node.node.group.style.display = "none";
 					}
+					console.log('characterx--node.refresh:::::','newstyle');
 					node.classList.add("newstyle");
 					node.node.name.dataset.nature = get.groupnature(get.bordergroup(infoitem));
 					node.node.group.dataset.nature = get.groupnature(get.bordergroup(infoitem), "raw");
@@ -3311,6 +3328,8 @@ export class Create {
 			};
 			node.refresh = func;
 			node.refresh(node, item);
+			if(link2s && link2s.noselect) node.style.opacity=1;
+			//if(link2s.nowidth) node.style.width='';	//附加样式
 
 			return node;
 		},
@@ -3400,6 +3419,10 @@ export class Create {
 		return new lib.element.Button(item, type, position, noClick, button);
 	}
 	buttons(list, type, position, noclick, zoom) {
+		if(typeof type=="string" &&["card","player","skill"].includes(type)){
+		} else {
+			console.log('4 ui.create.buttons()函数: 类型=', type);
+		}
 		var buttons = [];
 		var pre = typeof type == "string" && type.slice(0, 3) == "pre";
 		if (pre) {
@@ -3420,7 +3443,16 @@ export class Create {
 			if (pre) {
 				buttons.push(ui.create.prebutton(list[i], type.slice(3), fragment, noclick));
 			} else {
-				buttons.push(ui.create.button(list[i], type, fragment, noclick));
+				//buttons.push(ui.create.button(list[i], type, fragment, noclick));
+				let btn = ui.create.button(list[i], type, fragment, noclick);
+				let isfunc1 = typeof type=="function";
+				console.log('4-调用ui.create.button返回',btn.link2s,`类型是函数吗:${isfunc1}`);
+				if(btn.link2s && btn.link2s.isBlank){
+					console.log('4-忽略：：：',list[i]);
+					btn.style.visibility='hidden';
+				} else {
+					buttons.push(btn);
+				}
 			}
 		}
 		if (position) {

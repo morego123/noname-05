@@ -74,6 +74,8 @@ export class Dialog extends HTMLDivElement {
 			} else if (argument == "noforcebutton") {
 				noForceButton = true;
 			} else {
+				console.log('3-2=====================================');
+				console.log('3-2调用class Dialog(...).add():',argument);
 				dialog.add(argument);
 			}
 		});
@@ -317,6 +319,14 @@ export class Dialog extends HTMLDivElement {
 			if (zoom) {
 				buttons.classList.add("smallzoom");
 			}
+			if(item[2]){
+				console.log('3-2 附加信息/item[2]:',item[2]);
+				if(item[2].css2){
+					buttons.css(item[2].css2);
+				}
+			}
+			// @ts-ignore
+			console.log('3-2 创建button-list:调用ui.create.buttons() ',item[0], item[1], buttons, noclick);
 			// @ts-expect-error ignore
 			this.buttons = this.buttons.concat(ui.create.buttons(item[0], item[1], buttons, noclick));
 		}

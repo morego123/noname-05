@@ -12348,6 +12348,18 @@ const skills = {
 		},
 	},
 	olzhiba3: {},
+	rehuashen_add: {
+		enable: 'phaseUse',
+		filter(event, player) {
+			return true;
+		},
+		content() {
+			var next = game.createEvent("yanxi_xx", false);
+			next.cost_data = "替换当前化身";
+			next.player = player;
+			next.setContent(lib.skill.rehuashen.content);
+		},
+	},
 	rehuashen: {
 		unique: true,
 		audio: 2,
@@ -12580,7 +12592,8 @@ const skills = {
 						}
 						player.storage.rehuashen.current2 = control;
 						if (!player.additionalSkills.rehuashen?.includes(control)) {
-							player.flashAvatar("rehuashen", card);
+							//player.flashAvatar("rehuashen", card);
+							player.setAvatar("re_zuoci", card);
 							player.syncStorage("rehuashen");
 							player.updateMarks("rehuashen");
 							await player.addAdditionalSkills("rehuashen", control);
@@ -12612,6 +12625,15 @@ const skills = {
 			_status.characterlist.randomSort();
 			for (let i = 0; i < _status.characterlist.length; i++) {
 				let name = _status.characterlist[i];
+				let inpack = false;
+				const pack = Object.keys(lib.characterPack).find(pack => name in lib.characterPack[pack]);
+				//if (pack) {
+				if (pack && typeof pack === 'string' && ['shenhua', 'standard'].includes(pack)) {
+					inpack = true;
+				}  else {
+					continue;
+				}
+				console.log('::::',name,pack);
 				if (name.indexOf("zuoci") != -1 || name.indexOf("key_") == 0 || name.indexOf("sp_key_") == 0 || get.is.double(name) || lib.skill.rehuashen.banned.includes(name) || player.storage.rehuashen.character.includes(name)) {
 					continue;
 				}
@@ -12812,6 +12834,7 @@ const skills = {
 				return 0;
 			},
 		},
+		group:['rehuashen_add'],
 	},
 	rexinsheng: {
 		inherit: "xinsheng",
