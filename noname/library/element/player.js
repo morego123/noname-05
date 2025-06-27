@@ -12480,6 +12480,8 @@ export class Player extends HTMLDivElement {
 			this.parentNode.appendChild(node);
 			node.style.left = "calc(50% - 52px)";
 			node.style.top = "calc(50% - 52px)";
+			console.log('========================================');
+			console.log('0 摸牌动画:位置', this.parentNode, this, node);
 
 			dx = this.getLeft() + this.offsetWidth / 2 - 52 - node.offsetLeft;
 			dy = this.getTop() + this.offsetHeight / 2 - 52 - node.offsetTop;
@@ -12491,7 +12493,9 @@ export class Player extends HTMLDivElement {
 				}
 			}
 		}
-		node.style.transitionDuration = "0.8s";
+		node.style.transitionDuration = "0.4s";
+		console.log('========================================');
+		console.log('1 摸牌动画:开始刷新', node);
 		ui.refresh(node);
 		if (typeof num == "number" && init !== false) {
 			config = {
@@ -12526,10 +12530,13 @@ export class Player extends HTMLDivElement {
 		} else {
 			node.style.transform = "translate(" + dx + "px," + dy + "px)";
 		}
+		console.log('2-1 摸牌动画:变换位置', node);
 		node.show();
+		console.log('========================================');
+		console.log('2-2 摸牌动画:已移动到目标位置', node);
 
 		node.listenTransition(function () {
-			node.style.transitionDuration = "0.5s";
+			node.style.transitionDuration = "0.1s";
 			ui.refresh(node);
 			node.delete();
 		});
