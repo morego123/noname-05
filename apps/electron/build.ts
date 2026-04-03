@@ -5,6 +5,7 @@ async function main(targets: PackagerOptions["targets"], config: Partial<Configu
 	const appPaths = await buildElectron({
 		config: {
 			asar: false,
+			publish: null,
 			appId: "com.libnoname.noname",
 			productName: "noname",
 			directories: {
@@ -45,7 +46,7 @@ switch (process.argv[2]) {
 		main(Platform.LINUX.createTarget("AppImage", Arch.x64));
 		break;
 	case "macos":
-		main(Platform.MAC.createTarget("dmg", Arch.arm64, Arch.x64), {
+		main(Platform.MAC.createTarget("zip", Arch.x64), {
 			mac: {
 				identity: null,
 			},
