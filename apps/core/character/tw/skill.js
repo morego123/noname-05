@@ -325,7 +325,7 @@ const skills = {
 		filter(event, player) {
 			const storage = player.storage.twyishi,
 				num = player.getDamagedHp();
-			return storage || player.countDiscardableCards(player, "he") >= num;
+			return storage || (player.countDiscardableCards(player, "he") >= num && num > 0);
 		},
 		async cost(event, trigger, player) {
 			const storage = player.storage.twyishi,
@@ -459,6 +459,7 @@ const skills = {
 		},
 		subSkill: {
 			effect: {
+				audio: "twshuyin",
 				charlotte: true,
 				mark: true,
 				intro: { content: "下次使用红桃牌额外结算一次" },
@@ -882,11 +883,11 @@ const skills = {
 		enable: "chooseToUse",
 		popup: false,
 		filterCard(card) {
-			return get.tag(card, "damage") > 0;
+			return get.is.damageCard(card);
 		},
 		filter(event, player) {
 			const name = player.storage.twsaoting ? "jiu" : "juedou";
-			return player.hasCards("hes", card => get.tag(card, "damage") > 0) && event.filterCard(get.autoViewAs({ name }, "unsure"), player, event);
+			return player.hasCards("hes", card => get.is.damageCard(card)) && event.filterCard(get.autoViewAs({ name }, "unsure"), player, event);
 		},
 		position: "hes",
 		viewAs(cards, player) {
@@ -911,6 +912,11 @@ const skills = {
 						await player.draw();
 					}
 				});
+		},
+		hiddenCard(player, name) {
+			const storage = player.storage.twsaoting;
+			const namex = storage ? "jiu" : "juedou";
+			return name == namex && player.hasCards("hes", card => get.is.damageCard(card));
 		},
 		ai: {
 			order(item, player) {
@@ -4571,6 +4577,17 @@ const skills = {
 				target.markAuto(skill, [[phase, target.getCards("h")]]);
 				target.addGaintag(target.getCards("h"), "twsbfangzhu");
 			}
+		},
+		ai: {
+			maixie_defend: true,
+			effect: {
+				target(card, player, target) {
+					if (player.hasSkillTag("jueqing", false, target)) {
+						return [1, -1];
+					}
+					return 0.8;
+				},
+			},
 		},
 		group: "twsbfangzhu_liufang",
 		subSkill: {
@@ -27649,7 +27666,7 @@ const skills = {
 		},
 		direct: true,
 		filter(event, player) {
-			return player.countCards("he") > 0;
+			return player.hasCards("he");
 		},
 		content() {
 			"step 0";
@@ -28344,6 +28361,8 @@ const skills = {
 						const player = get.player();
 						if (button.link[2] == "dz_mantianguohai" && player.countCards("hs", "dz_mantianguohai") < 2) {
 							return 10;
+						} else if (player.countCards("hs", button.link[2]) == 1) {
+							return 4 + get.value({ name: button.link[2] });
 						}
 						return get.value({ name: button.link[2] });
 					})
@@ -28440,7 +28459,8 @@ const skills = {
 					filterCard: lib.filter.cardDiscardable,
 					filterTarget: true,
 					ai1(card) {
-						return 8 - get.value(card);
+						if (card.name == "dz_mantianguohai") return 0.1;
+						return 10 - get.value(card);
 					},
 					ai2(target) {
 						if (target.hasJudge("lebu")) {
@@ -28462,6 +28482,32 @@ const skills = {
 			} = event;
 			await player.discard({ cards });
 			target.insertPhase();
+		},
+		ai: {
+			effect: {
+				player(card, player, target) {
+					let bool = false;
+					const history = player.getHistory("useCard"),
+						map = {};
+					if (history.length) {
+						for (const evt of history) {
+							if (get.type2(evt.card) == "trick") {
+								if (!map[evt.card.name]) {
+									map[evt.card.name] = true;
+								} else {
+									bool = true;
+									break;
+								}
+							}
+						}
+						if (bool && get.type(card) == "trick" && player == _status.currentPhase) {
+							if (!player.needsToDiscard() || card.name == "dz_mantianguohai") {
+								return "zeroplayertarget";
+							}
+						}
+					}
+				},
+			},
 		},
 		subSkill: {
 			mark: {

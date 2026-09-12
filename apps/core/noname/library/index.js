@@ -23,6 +23,7 @@ import dedent from "dedent";
 import { PoptipManager, HTMLPoptipElement } from "./poptip.js";
 import { ZhanfaManager } from "./zhanfa.js";
 import skills from "./skill.js";
+import { DefaultFileSystemAdapter, FileSystem } from "./fs/index.js";
 
 const html = dedent;
 
@@ -5743,6 +5744,22 @@ export class Library {
 			},
 		},
 	};
+	setDoudizhuConfigIntro(node, link, _value, config) {
+		let info = "";
+		if (config.name === "加强地主") {
+			info = link !== "disabled" && Object.hasOwn(config.item, link) ? get.translation(link + "_info") : "";
+		} else if (config.name === "〖飞扬〗版本") {
+			const skill = { online: "feiyang", mobile: "mbfeiyang", decade: "dcfeiyang" }[link];
+			info = skill ? get.translation(skill + "_info") : "";
+		} else if (config.name === "农民遗产") {
+			info = { online: "一名农民死亡后，另一名农民摸一张牌。", mobile: "一名农民死亡后，另一名农民选择摸两张牌或回复1点体力。", decade: "一名农民死亡后，另一名农民不获得额外效果。" }[link] || "";
+		}
+		if (info) {
+			lib.setIntro(node, uiintro => {
+				uiintro._place_text = uiintro.add(`<div class="text" style="display:inline">${info}</div>`);
+			});
+		}
+	}
 	mode = {
 		identity: {
 			name: "身份",
@@ -7799,6 +7816,7 @@ export class Library {
 					name: "加强地主",
 					init: "disabled",
 					restart: true,
+					textMenu: this.setDoudizhuConfigIntro,
 					item: {
 						disabled: "禁用",
 						yinfu: "获得〖殷富〗",
@@ -7812,6 +7830,7 @@ export class Library {
 					name: "农民遗产",
 					init: "mobile",
 					restart: true,
+					textMenu: this.setDoudizhuConfigIntro,
 					item: {
 						online: "OL版本",
 						mobile: "手杀版本",
@@ -7822,6 +7841,7 @@ export class Library {
 					name: "〖飞扬〗版本",
 					init: "online",
 					restart: true,
+					textMenu: this.setDoudizhuConfigIntro,
 					item: {
 						online: "OL版本",
 						mobile: "手杀版本",
@@ -8059,6 +8079,7 @@ export class Library {
 					name: "加强地主",
 					init: "disabled",
 					restart: true,
+					textMenu: this.setDoudizhuConfigIntro,
 					item: {
 						disabled: "禁用",
 						yinfu: "获得〖殷富〗",
@@ -8072,6 +8093,7 @@ export class Library {
 					name: "农民遗产",
 					init: "mobile",
 					restart: true,
+					textMenu: this.setDoudizhuConfigIntro,
 					item: {
 						online: "OL版本",
 						mobile: "手杀版本",
@@ -8082,6 +8104,7 @@ export class Library {
 					name: "〖飞扬〗版本",
 					init: "online",
 					restart: true,
+					textMenu: this.setDoudizhuConfigIntro,
 					item: {
 						online: "OL版本",
 						mobile: "手杀版本",
@@ -8811,6 +8834,17 @@ export class Library {
 			);
 		},
 	};
+	/**
+	 * 文件系统操作入口（新）。
+	 *
+	 * 旨在整合之前`game.readFile/writeFile/...`用于读写文件的函数，为多平台支持提供统一适配器
+	 * 
+	 * 当前仅浏览器的开发服务器环境会安装具体适配器；其他运行环境暂使用默认适配器，
+	 * 调用文件系统操作时会抛出错误。此入口为后续 Node.js/Cordova 适配保留统一接口。
+	 *
+	 * @type {FileSystem}
+	 */
+	fs = new FileSystem(new DefaultFileSystemAdapter());
 	/**
 	 * @type {import('path-browserify-esm')}
 	 */
